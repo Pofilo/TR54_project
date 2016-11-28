@@ -1,4 +1,6 @@
-package com.utbm.tr54.robot;
+package com.utbm.tr54.robot.thread;
+import com.utbm.tr54.robot.ColorRobot;
+
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 

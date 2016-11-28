@@ -1,5 +1,7 @@
 package com.utbm.tr54.robot;
 
+import com.utbm.tr54.robot.thread.ColorSensorThread;
+
 import lejos.utility.Stopwatch;
 
 public class IARobot extends AbstractRobot {
