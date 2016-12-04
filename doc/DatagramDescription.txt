@@ -1,0 +1,30 @@
+Info client :
+    emeteur : client
+    recepteur : serveur
+    Header : 0
+    data :
+        - position : float // pourcentage de completion du circuit
+        - vitesse  : float // pourcentage de vitesse max
+
+Requete passage :
+    emeteur : client
+    recepteur : serveur
+    header : 1
+    data : None
+
+Sequence passage:
+    emeteur : serveur
+    recepteur : clients
+    header : 2
+    data :
+        - nombre robot dans liste : byte
+        - // identifiant robot 1
+        - position robot 1 : float
+        - vitesse robot 1  : float
+        - // identifiant robot 2
+        - position robot 2 : float
+        - vitesse robot 2  : float
+        - .....
+        - // identifiant robot n
+        - position robot n : float
+        - vitesse robot n  : float

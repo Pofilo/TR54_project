@@ -4,6 +4,7 @@ import com.utbm.tr54.robot.AbstractRobot;
 import com.utbm.tr54.robot.IARobot;
 
 import lejos.hardware.Button;
+import lejos.utility.Delay;
 
 public class Main {
 
