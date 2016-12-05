@@ -28,3 +28,5 @@ Sequence passage:
         - // identifiant robot n
         - position robot n : float
         - vitesse robot n  : float
+
+    identifiant robot : les 4 byte representant une addresse ip
