@@ -1,15 +1,16 @@
 package com.utbm.tr54.robot;
 
 import com.utbm.tr54.robot.thread.ColorSensorThread;
+import com.utbm.tr54.robot.thread.DistanceThread;
 
+import lejos.utility.Delay;
 import lejos.utility.Stopwatch;
 
 public class IARobot extends AbstractRobot {
 
-	final static float SPEED = 1f;
-	final static float WEAK_SPEED = 0.18f * SPEED;
-	final static float STRONG_SPEED = 0.4f * SPEED;
-	final static float SPEEDY = 0.4f;
+	float speed = 1f;
+	float weakSpeed = 0.18f * speed;
+	float strongSpeed = 0.4f * speed;
 
 	private enum State {
 		BLACK, BLUE, WHITE, ORANGE
@@ -20,25 +21,28 @@ public class IARobot extends AbstractRobot {
 	private boolean sawOrange = false;
 
 	private ColorSensorThread colorProvider;
+	private DistanceThread distanceProvider;
 
 	public IARobot(boolean isServer) {
 		super();
 		m_isServer = isServer;
 
-		assert (WEAK_SPEED <= 1.f);
-		assert (STRONG_SPEED <= 1.f);
-		assert (SPEEDY <= 1.f);
+		assert (weakSpeed <= 1.f);
+		assert (strongSpeed <= 1.f);
 
 		System.out.println("activate sensor");
 		this.ActivateColorSensor();
+		this.ActivateUltrasonicSensor();
 		System.out.println("create thread");
 		colorProvider = new ColorSensorThread(m_colorSampleProvider);
+		distanceProvider = new DistanceThread(m_distanceSampleProvider);
 	}
 
 	@Override
 	public void LaunchIA() {
 		System.out.println("run thread");
 		colorProvider.start();
+		distanceProvider.start();
 		System.out.println("begin");
 
 		State currentState = State.BLACK;
@@ -46,6 +50,8 @@ public class IARobot extends AbstractRobot {
 		Stopwatch orangeSw = new Stopwatch();
 
 		while (true) {
+			updateSpeed();
+			
 			if (!colorProvider.IsEmpty()) {
 				lastSeenColor = colorProvider.GetData();
 			}
@@ -73,19 +79,19 @@ public class IARobot extends AbstractRobot {
 
 			switch (currentState) {
 			case BLACK: {
-				this.SetSpeedLeft(WEAK_SPEED);
-				this.SetSpeedRight(STRONG_SPEED);
+				this.SetSpeedLeft(this.weakSpeed);
+				this.SetSpeedRight(this.strongSpeed);
 				this.Forward();
 				break;
 			}
 			case BLUE: {
-				this.SetSpeed(SPEEDY);
+				this.SetSpeed(this.speed);
 				this.Forward();
 				break;
 			}
 			case WHITE: {
-				this.SetSpeedLeft(STRONG_SPEED);
-				this.SetSpeedRight(WEAK_SPEED);
+				this.SetSpeedLeft(this.strongSpeed);
+				this.SetSpeedRight(this.weakSpeed);
 				this.Forward();
 				break;
 			}
@@ -93,6 +99,12 @@ public class IARobot extends AbstractRobot {
 				break;
 			}
 		}
+	}
+	
+	public void updateSpeed() {
+		this.speed = this.distanceProvider.getSpeed();
+		this.weakSpeed = 0.18f * speed;
+		this.strongSpeed = 0.4f * speed;
 	}
 
 }
