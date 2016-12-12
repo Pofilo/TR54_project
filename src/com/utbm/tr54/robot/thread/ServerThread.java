@@ -85,7 +85,7 @@ public class ServerThread extends Thread {
 						data = new RobotData();
 					}
 
-					byte[] rawPosition = Arrays.copyOfRange(messageData, 1, 4);
+					byte[] rawPosition = Arrays.copyOfRange(messageData, 1, 5);
 					byte[] rawSpeed = Arrays.copyOfRange(messageData, 5, 8);
 
 					data.position = ByteBuffer.wrap(rawPosition).getFloat();
