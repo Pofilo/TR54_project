@@ -1,7 +1,7 @@
 package com.utbm.tr54;
 
 import com.utbm.tr54.robot.AbstractRobot;
-import com.utbm.tr54.robot.IARobot;
+import com.utbm.tr54.robot.RobotIA;
 import com.utbm.tr54.robot.thread.ServerThread;
 
 import lejos.hardware.Button;
@@ -18,11 +18,11 @@ public class Main {
 			final int button = Button.waitForAnyPress();
 
 			if (button == Button.ID_UP) {
-				robot = new IARobot(true);
+				robot = new RobotIA(true);
 				ServerThread server = new ServerThread();
 				server.start();
 			} else if (button == Button.ID_RIGHT || button == Button.ID_LEFT || button == Button.ID_DOWN) {
-				robot = new IARobot(false);
+				robot = new RobotIA(false);
 			}
 		} while (robot == null);
 		
