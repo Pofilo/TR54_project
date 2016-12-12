@@ -1,5 +1,6 @@
 package com.utbm.tr54.robot;
 
+import com.utbm.tr54.robot.thread.ClientThread;
 import com.utbm.tr54.robot.thread.ColorSensorThread;
 import com.utbm.tr54.robot.thread.DistanceThread;
 
@@ -18,7 +19,9 @@ public class RobotIA extends AbstractRobot {
 		BLACK, BLUE, WHITE, ORANGE
 	};
 	
+
 	private boolean sawFirstOrange = false;
+	private static final int PERIOD = 50;
 
 	private ColorSensorThread colorProvider;
 	private DistanceThread distanceProvider;
@@ -53,6 +56,13 @@ public class RobotIA extends AbstractRobot {
 			updateSpeed();
 			updatePosition();
 			System.out.println(this.position);
+			
+			// we check if we can advance or not
+			if(!ClientThread.getInstance().isCanAdvance()) {
+				this.Stop();
+				Delay.msDelay(PERIOD);
+				continue;
+			}
 			
 			if (!colorProvider.IsEmpty()) {
 				lastSeenColor = colorProvider.GetData();
@@ -105,14 +115,15 @@ public class RobotIA extends AbstractRobot {
 		}
 	}
 	
-	public void updateSpeed() {
+	private void updateSpeed() {
 		this.speed = this.distanceProvider.getSpeed();
 		this.weakSpeed = 0.18f * speed;
 		this.strongSpeed = 0.4f * speed;
 		this.blueSpeed = 0.6f * speed;
 	}
-	public void updatePosition(){
-		
+
+	
+	private void updatePosition(){
 		if(this.position < 100)
 		{
 			if (sawFirstOrange){
@@ -130,5 +141,13 @@ public class RobotIA extends AbstractRobot {
 			this.m_motorLeft.resetTachoCount();
 		}
 		
+	}
+	
+	public float getSpeed() {
+		return this.speed;
+	}
+	
+	public float getPosition() {
+		return this.position;
 	}
 }
