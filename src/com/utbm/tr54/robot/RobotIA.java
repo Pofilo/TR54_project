@@ -18,7 +18,7 @@ public class RobotIA extends AbstractRobot {
 	private enum State {
 		BLACK, BLUE, WHITE, ORANGE
 	};
-	
+
 	private boolean dangerZone = false;
 	private boolean sawFirstOrange = false;
 	private static final int PERIOD = 50;
@@ -28,11 +28,11 @@ public class RobotIA extends AbstractRobot {
 
 	public RobotIA(boolean isServer) {
 		super();
-		
-		assert (weakSpeed <= 1.f);
-		assert (strongSpeed <= 1.f);
-		assert (blueSpeed <= 1.f);
-		
+
+		assert(weakSpeed <= 1.f);
+		assert(strongSpeed <= 1.f);
+		assert(blueSpeed <= 1.f);
+
 		System.out.println("activate sensor");
 		this.ActivateColorSensor();
 		this.ActivateUltrasonicSensor();
@@ -51,19 +51,20 @@ public class RobotIA extends AbstractRobot {
 		State currentState = State.BLACK;
 		ColorRobot lastSeenColor = new ColorRobot(0, 0, 0);
 		Stopwatch orangeSw = new Stopwatch();
-		
+
 		while (true) {
 			updateSpeed();
 			updatePosition();
 			System.out.println(this.position);
-			
-			// we check if we are in the danger zone and if we can advance or not
-			if(!dangerZone && !ClientThread.getInstance().isCanAdvance()) {
+
+			// we check if we are in the danger zone and if we can advance or
+			// not
+			if (!dangerZone && !ClientThread.getInstance().isCanAdvance()) {
 				this.Stop();
 				Delay.msDelay(PERIOD);
 				continue;
 			}
-			
+
 			if (!colorProvider.IsEmpty()) {
 				lastSeenColor = colorProvider.GetData();
 			}
@@ -75,10 +76,15 @@ public class RobotIA extends AbstractRobot {
 			} else if (lastSeenColor.IsWhite()) {
 				currentState = State.WHITE;
 			} else if (lastSeenColor.IsOrange()) {
-				this.position=0; //premiere bande
+				this.position = 0; // premiere bande
 				this.m_motorLeft.resetTachoCount();
 				if (orangeSw.elapsed() > 2000) {
+
 					ClientThread.getInstance().sendAccessRequest();
+
+					this.position = 0;
+					this.m_motorLeft.resetTachoCount();
+
 					sawFirstOrange = !sawFirstOrange;
 					orangeSw.reset();
 				} else {
@@ -110,41 +116,41 @@ public class RobotIA extends AbstractRobot {
 			}
 		}
 	}
-	
+
 	private void updateSpeed() {
 		this.speed = this.distanceProvider.getSpeed();
 		this.weakSpeed = 0.18f * speed;
 		this.strongSpeed = 0.4f * speed;
 		this.blueSpeed = 0.6f * speed;
 	}
-	
-	private void updatePosition(){
-		if(this.position < 100)	{
-			if (sawFirstOrange){
-				
-				this.position = (this.m_motorLeft.getTachoCount()/6000f)*100;
+
+	private void updatePosition() {
+		if (this.position < 100) {
+			if (sawFirstOrange) {
+
+				this.position = (this.m_motorLeft.getTachoCount() / 10800f) * 100;
 			} else {
-				
-				this.position = ((this.m_motorLeft.getTachoCount()/6000f)*100)+50;
+
+				this.position = ((this.m_motorLeft.getTachoCount() / 10800f) * 100) + 50;
 			}
-			
-			if((position > 0 && position < 15) || (position > 50 && position < 65)) {
+
+			if ((position > 0 && position < 15) || (position > 50 && position < 65)) {
 				this.dangerZone = true;
 			} else {
 				this.dangerZone = false;
 			}
-			
+
 		} else {
 			this.position = 0;
 			this.m_motorLeft.resetTachoCount();
 		}
-		
+
 	}
-	
+
 	public float getSpeed() {
 		return this.speed;
 	}
-	
+
 	public float getPosition() {
 		return this.position;
 	}

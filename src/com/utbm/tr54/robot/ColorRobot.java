@@ -35,7 +35,7 @@ public class ColorRobot {
 	
 	public boolean IsWhite()
 	{
-		return (r > 0.15 && g > 0.15 && b > 0.10);
+		return (r > 0.15 && g > 0.15 && b > 0.06);
 	}
 	
 	public boolean IsOrange()

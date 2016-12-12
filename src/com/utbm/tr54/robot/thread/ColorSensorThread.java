@@ -37,7 +37,9 @@ public class ColorSensorThread extends Thread{
 		synchronized (mutex) {
 			color = m_buffer;
 		}
+
 		return color;
+		
 	}
 
 	private void AcquireData()
