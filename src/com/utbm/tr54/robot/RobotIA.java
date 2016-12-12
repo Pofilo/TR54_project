@@ -59,7 +59,7 @@ public class RobotIA extends AbstractRobot {
 
 			// we check if we are in the danger zone and if we can advance or
 			// not
-			if (!dangerZone && !ClientThread.getInstance().isCanAdvance()) {
+			if (dangerZone && !ClientThread.getInstance().isCanAdvance()) {
 				this.stop();
 				Delay.msDelay(PERIOD);
 				continue;

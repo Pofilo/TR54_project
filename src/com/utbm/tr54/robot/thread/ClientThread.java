@@ -133,15 +133,15 @@ public class ClientThread extends Thread {
 		byte[] position = ByteBuffer.allocate(4).putFloat(this.robotIA.getPosition()).array();
 		byte[] speed = ByteBuffer.allocate(4).putFloat(this.robotIA.getSpeed()).array();
 		
+		message[1 + 0] = position[0];
 		message[1 + 1] = position[1];
 		message[1 + 2] = position[2];
 		message[1 + 3] = position[3];
-		message[1 + 4] = position[4];
 
+		message[1 + 4] = speed[0];
 		message[1 + 5] = speed[1];
 		message[1 + 6] = speed[2];
 		message[1 + 7] = speed[3];
-		message[1 + 8] = speed[4];
 		
 		try {
 			BroadcastManager.getInstance().broadcast(message);
