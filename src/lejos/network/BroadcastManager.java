@@ -86,7 +86,12 @@ public class BroadcastManager implements AutoCloseable {
 		}
 	}
 	
-	public boolean IsSameAddress(String address) {
+	/**
+	 * Verify if a given address is equals to one of our own ip address
+	 * @param address a string representing an ip address
+	 * @return true if the given address is the same as one of our own address
+	 */
+	public boolean isSameAddress(String address) {
 		boolean result = false;
 		for (String knowAddress : m_interfacesAddress) {
 			result = knowAddress.compareTo(address) == 0;

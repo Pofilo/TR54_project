@@ -4,34 +4,64 @@ import com.utbm.tr54.robot.ColorRobot;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
+
+/**
+ * The Class ColorSensorThread poll the color sensor in his own thread.
+ */
 public class ColorSensorThread extends Thread{
+	
+	/** The buffer containing the current color. */
 	private ColorRobot m_buffer;
+	
+	/** The sample provider. */
 	private SampleProvider m_provider;
+	
+	/** The mutex used to synchronize the buffer I/O. */
 	private Object mutex = new Object();
 
+	/** The boolean defining whether the thread is active. */
 	public boolean IsRunning = true;
 
+	/**
+	 * Instantiates a new color sensor thread.
+	 *
+	 * @param provider the sample provider
+	 */
 	public ColorSensorThread(SampleProvider provider)
 	{
 		m_provider = provider;
 		m_buffer = new ColorRobot(0, 0, 0);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	public void run()
 	{
 		while(IsRunning)
 		{
-			AcquireData();
+			acquireData();
 			Delay.msDelay(10);
 		}
 	}
 
-	public boolean IsEmpty()
+	/**
+	 * Checks if the buffer is empty.
+	 *
+	 * @return true, if successful
+	 */
+	public boolean isEmpty()
 	{
 		return m_buffer == null;
 	}
 
-	public ColorRobot GetData()
+	/**
+	 * Gets the buffer content.
+	 * Doesn't actually empty the buffer
+	 *
+	 * @return the color currently seen by the sensor
+	 */
+	public ColorRobot getData()
 	{
 		ColorRobot color = null;
 		synchronized (mutex) {
@@ -42,7 +72,10 @@ public class ColorSensorThread extends Thread{
 		
 	}
 
-	private void AcquireData()
+	/**
+	 * Acquire data from the sensor.
+	 */
+	private void acquireData()
 	{
 		synchronized (mutex)
 		{

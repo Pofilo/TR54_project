@@ -10,30 +10,59 @@ import lejos.robotics.RegulatedMotor;
 import lejos.robotics.SampleProvider;
 
 
+/**
+ * The Class AbstractRobot represent every function available to a robot.
+ */
 public abstract class AbstractRobot implements IRobotIA{
 
+	/** The left motor. */
 	protected BaseRegulatedMotor m_motorLeft;
+	
+	/** The right motor. */
 	protected BaseRegulatedMotor m_motorRight;
 
+	/** The distance sensor. */
 	private EV3UltrasonicSensor m_distanceSensor;
+	
+	/** The distance sample provider. */
 	protected SampleProvider m_distanceSampleProvider;
-	private boolean m_ultrasonicSensorActivated = false;
+	
+	/** Ultrasound sensor activated. */
+	private boolean m_ultrasoundSensorActivated = false;
 
+	/** The color sensor. */
 	private EV3ColorSensor m_colorSensor;
+	
+	/** The color sample provider. */
 	protected SampleProvider m_colorSampleProvider;
+	
+	/** Color sensor activated. */
 	private boolean m_colorSensorActivated = false;
 
+	/** The left motor left. */
 	private Port m_motorLeftPort = MotorPort.B;
+	
+	/** The right motor port. */
 	private Port m_motorRightPort = MotorPort.C;
+	
+	/** The distance sensor port. */
 	private Port m_distanceSensorPort = SensorPort.S3;
+	
+	/** The color sensor port. */
 	private Port m_colorSensorPort = SensorPort.S2;
 
+	/**
+	 * Instantiates a new abstract robot.
+	 */
 	public AbstractRobot()
 	{
-		ActivateMotor();
+		activateMotors();
 	}
 
-	protected void ActivateMotor()
+	/**
+	 * Activate motors.
+	 */
+	protected void activateMotors()
 	{
 		m_motorLeft = new EV3LargeRegulatedMotor(m_motorLeftPort);
 		m_motorRight = new EV3LargeRegulatedMotor(m_motorRightPort);
@@ -41,7 +70,10 @@ public abstract class AbstractRobot implements IRobotIA{
 		m_motorLeft.synchronizeWith(new RegulatedMotor[] {m_motorRight});
 	}
 
-	protected void Forward()
+	/**
+	 * Make the robot go forward.
+	 */
+	protected void forward()
 	{
 		m_motorLeft.startSynchronization();
 		m_motorLeft.forward();
@@ -49,7 +81,12 @@ public abstract class AbstractRobot implements IRobotIA{
 		m_motorLeft.endSynchronization();
 	}
 
-	protected void Rotate(int angle)
+	/**
+	 * Rotate the robot.
+	 *
+	 * @param angle the angle to rotate the robot, in degre.
+	 */
+	protected void rotate(int angle)
 	{
 		m_motorLeft.startSynchronization();
 		angle *= 2;
@@ -70,7 +107,10 @@ public abstract class AbstractRobot implements IRobotIA{
 
 	}
 
-	protected void Stop()
+	/**
+	 * Stop the robot from advancing.
+	 */
+	protected void stop()
 	{
 		m_motorLeft.startSynchronization();
 
@@ -83,23 +123,43 @@ public abstract class AbstractRobot implements IRobotIA{
 		m_motorRight.waitComplete();
 	}
 
-	protected void SetSpeed(float percent)
+	/**
+	 * Sets the speed of the robot.
+	 *
+	 * @param percent the percent of max speed used by the robot
+	 */
+	protected void setSpeed(float percent)
 	{
 		m_motorLeft.setSpeed(m_motorLeft.getMaxSpeed() * percent);
 		m_motorRight.setSpeed(m_motorRight.getMaxSpeed() * percent);
 	}
 	
-	protected void SetSpeedLeft(float percent)
+	/**
+	 * Sets the speed of the left motor.
+	 *
+	 * @param percent the percent of max speed used by left motor
+	 */
+	protected void setSpeedLeft(float percent)
 	{
 		m_motorLeft.setSpeed(m_motorLeft.getMaxSpeed() * percent);
 	}
 	
-	protected void SetSpeedRight(float percent)
+	/**
+	 * Sets the speed of the right motor.
+	 *
+	 * @param percent the percent of max speed used by right motor
+	 */
+	protected void setSpeedRight(float percent)
 	{
 		m_motorRight.setSpeed(m_motorRight.getMaxSpeed() * percent);
 	}
 
-	protected float GetSpeed()
+	/**
+	 * Gets the speed of the robot.
+	 *
+	 * @return the mean of each motor speed in percent of the max speed.
+	 */
+	protected float getSpeed()
 	{
 		float speed = 0;
 		speed += m_motorLeft.getSpeed();
@@ -109,29 +169,43 @@ public abstract class AbstractRobot implements IRobotIA{
 
 	}
 
-	protected void ActivateUltrasonicSensor()
+	/**
+	 * Activate ultrasound sensor.
+	 */
+	protected void activateUltrasoundSensor()
 	{
-		if(m_ultrasonicSensorActivated)
+		if(m_ultrasoundSensorActivated)
 		{
 			m_distanceSensor.enable();
 		}
 		m_distanceSensor = new EV3UltrasonicSensor(m_distanceSensorPort);
 		m_distanceSensor.setCurrentMode("Distance");
 		m_distanceSampleProvider = m_distanceSensor.getDistanceMode();
-		m_ultrasonicSensorActivated = m_distanceSensor.isEnabled();
+		m_ultrasoundSensorActivated = m_distanceSensor.isEnabled();
 	}
 
-	protected void DeactivateUltrasoneSensor()
+	/**
+	 * Deactivate ultrasound sensor.
+	 */
+	protected void deactivateUltrasoundSensor()
 	{
 		m_distanceSensor.disable();
 	}
 
-	protected boolean IsUltrasonicSensorActivated()
+	/**
+	 * Checks if is ultrasonic sensor is activated.
+	 *
+	 * @return true, if successful
+	 */
+	protected boolean isUltrasonicSensorActivated()
 	{
-		return m_ultrasonicSensorActivated && m_distanceSensor.isEnabled();
+		return m_ultrasoundSensorActivated && m_distanceSensor.isEnabled();
 	}
 
-	protected void ActivateColorSensor()
+	/**
+	 * Activate the color sensor.
+	 */
+	protected void activateColorSensor()
 	{
 		m_colorSensor = new EV3ColorSensor(m_colorSensorPort);
 		m_colorSensor.setCurrentMode("RGB");
@@ -139,19 +213,35 @@ public abstract class AbstractRobot implements IRobotIA{
 		m_colorSensorActivated = true;
 	}
 
-	protected boolean IsColorSensorActivated()
+	/**
+	 * Checks if is color sensor is activated.
+	 *
+	 * @return true, if successful
+	 */
+	protected boolean isColorSensorActivated()
 	{
 		return m_colorSensorActivated;
 	}
 
-	protected float Distance()
+	/**
+	 * Return the distance capted by the ultrasonic sensor.
+	 *
+	 * @return a distance in meter
+	 */
+	protected float getDistance()
 	{
-		return Distance(10);
+		return getDistance(10);
 	}
 
-	protected float Distance(int n)
+	/**
+	 * Return the distance capted by the ultrasonic sensor.
+	 *
+	 * @param n the number of sample we take before returning the result
+	 * @return a distance in meter
+	 */
+	protected float getDistance(int n)
 	{
-		if(!IsUltrasonicSensorActivated())
+		if(!isUltrasonicSensorActivated())
 		{
 			return -1;
 		}
@@ -168,7 +258,12 @@ public abstract class AbstractRobot implements IRobotIA{
 		return dist;
 	}
 
-	protected ColorRobot SeeColor()
+	/**
+	 * Return the color saw by the color sensor.
+	 *
+	 * @return a colorRobot object
+	 */
+	protected ColorRobot seeColor()
 	{		
 		ColorRobot color = new ColorRobot();
 

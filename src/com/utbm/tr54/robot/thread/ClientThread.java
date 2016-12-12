@@ -60,7 +60,7 @@ public class ClientThread extends Thread {
 						String receivedIp;
 						try {
 							receivedIp = InetAddress.getByAddress(rawIp).getHostAddress();
-							if (BroadcastManager.getInstance().IsSameAddress(receivedIp)) {
+							if (BroadcastManager.getInstance().isSameAddress(receivedIp)) {
 								inTheList = true;
 								indexInList = i;
 							}

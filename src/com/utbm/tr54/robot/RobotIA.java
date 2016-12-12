@@ -26,7 +26,7 @@ public class RobotIA extends AbstractRobot {
 	private ColorSensorThread colorProvider;
 	private DistanceThread distanceProvider;
 
-	public RobotIA(boolean isServer) {
+	public RobotIA() {
 		super();
 
 		assert(weakSpeed <= 1.f);
@@ -34,15 +34,15 @@ public class RobotIA extends AbstractRobot {
 		assert(blueSpeed <= 1.f);
 
 		System.out.println("activate sensor");
-		this.ActivateColorSensor();
-		this.ActivateUltrasonicSensor();
+		this.activateColorSensor();
+		this.activateUltrasoundSensor();
 		System.out.println("create thread");
 		colorProvider = new ColorSensorThread(m_colorSampleProvider);
 		distanceProvider = new DistanceThread(m_distanceSampleProvider);
 	}
 
 	@Override
-	public void LaunchIA() {
+	public void launchIA() {
 		System.out.println("run thread");
 		colorProvider.start();
 		distanceProvider.start();
@@ -60,22 +60,22 @@ public class RobotIA extends AbstractRobot {
 			// we check if we are in the danger zone and if we can advance or
 			// not
 			if (!dangerZone && !ClientThread.getInstance().isCanAdvance()) {
-				this.Stop();
+				this.stop();
 				Delay.msDelay(PERIOD);
 				continue;
 			}
-
-			if (!colorProvider.IsEmpty()) {
-				lastSeenColor = colorProvider.GetData();
+			
+			if (!colorProvider.isEmpty()) {
+				lastSeenColor = colorProvider.getData();
 			}
 
-			if (lastSeenColor.IsBlack()) {
+			if (lastSeenColor.isBlack()) {
 				currentState = State.BLACK;
-			} else if (lastSeenColor.IsBlue()) {
+			} else if (lastSeenColor.isBlue()) {
 				currentState = State.BLUE;
-			} else if (lastSeenColor.IsWhite()) {
+			} else if (lastSeenColor.isWhite()) {
 				currentState = State.WHITE;
-			} else if (lastSeenColor.IsOrange()) {
+			} else if (lastSeenColor.isOrange()) {
 				this.position = 0; // premiere bande
 				this.m_motorLeft.resetTachoCount();
 				if (orangeSw.elapsed() > 2000) {
@@ -95,20 +95,20 @@ public class RobotIA extends AbstractRobot {
 
 			switch (currentState) {
 			case BLACK: {
-				this.SetSpeedLeft(this.weakSpeed);
-				this.SetSpeedRight(this.strongSpeed);
-				this.Forward();
+				this.setSpeedLeft(this.weakSpeed);
+				this.setSpeedRight(this.strongSpeed);
+				this.forward();
 				break;
 			}
 			case BLUE: {
-				this.SetSpeed(this.blueSpeed);
-				this.Forward();
+				this.setSpeed(this.blueSpeed);
+				this.forward();
 				break;
 			}
 			case WHITE: {
-				this.SetSpeedLeft(this.strongSpeed);
-				this.SetSpeedRight(this.weakSpeed);
-				this.Forward();
+				this.setSpeedLeft(this.strongSpeed);
+				this.setSpeedRight(this.weakSpeed);
+				this.forward();
 				break;
 			}
 			default:

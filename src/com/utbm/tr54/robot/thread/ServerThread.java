@@ -99,8 +99,8 @@ public class ServerThread extends Thread {
 					// the intersection
 					if (m_accessList.contains(message.getAddress().getHostAddress())) {
 						synchronized (m_mutexAccessList) {
-							if (((data.position > 25) && (data.position < 50))
-									|| ((data.position > 75) && (data.position < 100))) {
+							if (((data.position > 20) && (data.position < 40))
+									|| ((data.position > 70) && (data.position < 90))) {
 								m_accessList.remove(message.getAddress().getHostAddress());
 							}
 						}

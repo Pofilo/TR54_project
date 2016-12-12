@@ -1,4 +1,12 @@
 package com.utbm.tr54.robot;
+
+/**
+ * The Interface IRobotIA represent an IA whose only public function is it's launch method.
+ */
 public interface IRobotIA {
-	public void LaunchIA();
+	
+	/**
+	 * Launch the IA.
+	 */
+	public void launchIA();
 }
