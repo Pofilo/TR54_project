@@ -18,7 +18,7 @@ public class RobotIA extends AbstractRobot {
 		BLACK, BLUE, WHITE, ORANGE
 	};
 	
-	private boolean sawOrange = false;
+	private boolean sawFirstOrange = false;
 
 	private ColorSensorThread colorProvider;
 	private DistanceThread distanceProvider;
@@ -65,14 +65,15 @@ public class RobotIA extends AbstractRobot {
 			} else if (lastSeenColor.IsWhite()) {
 				currentState = State.WHITE;
 			} else if (lastSeenColor.IsOrange()) {
+				this.position=0; //premiere bande
+				this.m_motorLeft.resetTachoCount();
 				if (orangeSw.elapsed() > 2000) {
-					if (!sawOrange) {
-						this.position=0; //premiere bande
-						this.m_motorLeft.resetTachoCount();
+					if (sawFirstOrange) {
+						
 					} else {
-						this.m_motorLeft.resetTachoCount();// deuxieme bande
+						
 					}
-					sawOrange = !sawOrange;
+					sawFirstOrange = !sawFirstOrange;
 					orangeSw.reset();
 				} else {
 					orangeSw.reset();
@@ -111,19 +112,23 @@ public class RobotIA extends AbstractRobot {
 		this.blueSpeed = 0.6f * speed;
 	}
 	public void updatePosition(){
-	
+		
 		if(this.position < 100)
 		{
-			if (!sawOrange){
-				this.position = (this.m_motorLeft.getTachoCount()/5700f)*100;
+			if (sawFirstOrange){
+				
+				this.position = (this.m_motorLeft.getTachoCount()/6000f)*100;
 			}
 			else{
 				
-				this.position = (this.m_motorLeft.getTachoCount()/5700f)*100+50;
+				this.position = ((this.m_motorLeft.getTachoCount()/6000f)*100)+50;
 			}
 			
 		}
-		else this.position = 0;
+		else{
+			this.position = 0;
+			this.m_motorLeft.resetTachoCount();
+		}
 		
 	}
 }
