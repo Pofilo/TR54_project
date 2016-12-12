@@ -86,7 +86,7 @@ public class ServerThread extends Thread {
 					}
 
 					byte[] rawPosition = Arrays.copyOfRange(messageData, 1, 5);
-					byte[] rawSpeed = Arrays.copyOfRange(messageData, 5, 8);
+					byte[] rawSpeed = Arrays.copyOfRange(messageData, 5, 9);
 
 					data.position = ByteBuffer.wrap(rawPosition).getFloat();
 					data.speed = ByteBuffer.wrap(rawSpeed).getFloat();
@@ -220,15 +220,15 @@ public class ServerThread extends Thread {
 					message[2 + i * 12 + 2] = ipAddress[2];
 					message[2 + i * 12 + 3] = ipAddress[3];
 
-					message[2 + i * 12 + 4] = position[1];
-					message[2 + i * 12 + 5] = position[2];
-					message[2 + i * 12 + 6] = position[3];
-					message[2 + i * 12 + 7] = position[4];
+					message[2 + i * 12 + 4] = position[0];
+					message[2 + i * 12 + 5] = position[1];
+					message[2 + i * 12 + 6] = position[2];
+					message[2 + i * 12 + 7] = position[3];
 
-					message[2 + i * 12 + 8] = speed[1];
-					message[2 + i * 12 + 9] = speed[2];
-					message[2 + i * 12 + 10] = speed[3];
-					message[2 + i * 12 + 11] = speed[4];
+					message[2 + i * 12 + 8] = speed[0];
+					message[2 + i * 12 + 9] = speed[1];
+					message[2 + i * 12 + 10] = speed[2];
+					message[2 + i * 12 + 11] = speed[3];
 				}
 
 				try {
