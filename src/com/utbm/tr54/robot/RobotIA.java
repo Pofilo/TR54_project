@@ -19,7 +19,7 @@ public class RobotIA extends AbstractRobot {
 		BLACK, BLUE, WHITE, ORANGE
 	};
 	
-
+	private boolean dangerZone = false;
 	private boolean sawFirstOrange = false;
 	private static final int PERIOD = 50;
 
@@ -57,8 +57,8 @@ public class RobotIA extends AbstractRobot {
 			updatePosition();
 			System.out.println(this.position);
 			
-			// we check if we can advance or not
-			if(!ClientThread.getInstance().isCanAdvance()) {
+			// we check if we are in the danger zone and if we can advance or not
+			if(!dangerZone && !ClientThread.getInstance().isCanAdvance()) {
 				this.Stop();
 				Delay.msDelay(PERIOD);
 				continue;
@@ -78,11 +78,7 @@ public class RobotIA extends AbstractRobot {
 				this.position=0; //premiere bande
 				this.m_motorLeft.resetTachoCount();
 				if (orangeSw.elapsed() > 2000) {
-					if (sawFirstOrange) {
-						
-					} else {
-						
-					}
+					ClientThread.getInstance().sendAccessRequest();
 					sawFirstOrange = !sawFirstOrange;
 					orangeSw.reset();
 				} else {
@@ -121,22 +117,24 @@ public class RobotIA extends AbstractRobot {
 		this.strongSpeed = 0.4f * speed;
 		this.blueSpeed = 0.6f * speed;
 	}
-
 	
 	private void updatePosition(){
-		if(this.position < 100)
-		{
+		if(this.position < 100)	{
 			if (sawFirstOrange){
 				
 				this.position = (this.m_motorLeft.getTachoCount()/6000f)*100;
-			}
-			else{
+			} else {
 				
 				this.position = ((this.m_motorLeft.getTachoCount()/6000f)*100)+50;
 			}
 			
-		}
-		else{
+			if((position > 0 && position < 15) || (position > 50 && position < 65)) {
+				this.dangerZone = true;
+			} else {
+				this.dangerZone = false;
+			}
+			
+		} else {
 			this.position = 0;
 			this.m_motorLeft.resetTachoCount();
 		}

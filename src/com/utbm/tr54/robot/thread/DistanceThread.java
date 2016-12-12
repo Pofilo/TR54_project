@@ -9,7 +9,7 @@ public class DistanceThread extends Thread {
 	private static final int COEF_A = 200;
 	private static final float COEF_D = 0.1699f;
 	
-	private boolean isRunning;
+	private boolean isRunning = true;
 	private float m_buffer;
 	
 	private SampleProvider m_provider;
@@ -26,10 +26,6 @@ public class DistanceThread extends Thread {
 			Delay.msDelay(PERIOD);
 		}
 	}
-
-	public void setRunning(final boolean isRunning) {
-		this.isRunning = isRunning;
-	}
 	
 	public float getSpeed() {
 		float percentSpeed;
@@ -41,7 +37,7 @@ public class DistanceThread extends Thread {
 		return percentSpeed;
 	}
 	
-	public void acquireSpeed() {
+	private void acquireSpeed() {
 		synchronized (this.mutex) {
 			float distance;
 			float[] sample = new float[this.m_provider.sampleSize()];
