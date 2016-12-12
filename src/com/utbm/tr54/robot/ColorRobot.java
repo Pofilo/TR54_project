@@ -56,7 +56,7 @@ public class ColorRobot {
 	 */
 	public boolean isBlue()
 	{
-		return equals(this, PERFECT_BLUE, 0.2f);
+		return equals(this, PERFECT_BLUE, 0.1f);
 	}
 	
 	/**
@@ -66,7 +66,7 @@ public class ColorRobot {
 	 */
 	public boolean isBlack()
 	{
-		return equals(this, PERFECT_BLACK, 0.07f);
+		return equals(this, PERFECT_BLACK, 0.1f);
 	}
 	
 	/**
@@ -76,7 +76,7 @@ public class ColorRobot {
 	 */
 	public boolean isWhite()
 	{
-		return (r > 0.15 && g > 0.15 && b > 0.06);
+		return (r > 0.15 && g > 0.15 && b > 0.08f);
 	}
 	
 	/**
@@ -99,13 +99,13 @@ public class ColorRobot {
 	 */
 	public static boolean equals(ColorRobot color1, ColorRobot color2, float epsilon)
 	{
-		float error = 0;
+		boolean error = true;
 		
-		error += Math.abs(color1.r - color2.r);
-		error += Math.abs(color1.g - color2.g);
-		error += Math.abs(color1.b - color2.b);
+		error = error && Math.abs(color1.r - color2.r) < epsilon;
+		error = error && Math.abs(color1.g - color2.g) < epsilon;
+		error = error && Math.abs(color1.b - color2.b) < epsilon;
 		
-		return (error < epsilon);
+		return (error);
 	}
 
 	/* (non-Javadoc)

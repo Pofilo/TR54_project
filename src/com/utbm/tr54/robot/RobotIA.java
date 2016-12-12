@@ -55,7 +55,7 @@ public class RobotIA extends AbstractRobot {
 		while (true) {
 			updateSpeed();
 			updatePosition();
-			System.out.println(this.position);
+			
 
 			// we check if we are in the danger zone and if we can advance or
 			// not
