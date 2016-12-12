@@ -13,7 +13,7 @@ public class RobotIA extends AbstractRobot {
 	float weakSpeed = 0.18f * speed;
 	float strongSpeed = 0.4f * speed;
 	float blueSpeed = 0.6f * speed;
-	float position = 0;
+	float position = 100;
 
 	private enum State {
 		BLACK, BLUE, WHITE, ORANGE
@@ -78,6 +78,11 @@ public class RobotIA extends AbstractRobot {
 			} else if (lastSeenColor.isOrange()) {
 				this.position = 0; // premiere bande
 				this.m_motorLeft.resetTachoCount();
+				
+				
+				
+				
+				
 				if (orangeSw.elapsed() > 2000) {
 
 					ClientThread.getInstance().sendAccessRequest();
@@ -125,7 +130,7 @@ public class RobotIA extends AbstractRobot {
 	}
 
 	private void updatePosition() {
-		if (this.position < 100) {
+		
 			if (sawFirstOrange) {
 
 				this.position = (this.m_motorLeft.getTachoCount() / 10800f) * 100;
@@ -134,16 +139,12 @@ public class RobotIA extends AbstractRobot {
 				this.position = ((this.m_motorLeft.getTachoCount() / 10800f) * 100) + 50;
 			}
 
-			if ((position > 0 && position < 15) || (position > 50 && position < 65)) {
+			if ((position > 0 && position < 15) || (position > 50 && position < 65) ) {
 				this.dangerZone = true;
 			} else {
 				this.dangerZone = false;
 			}
 
-		} else {
-			this.position = 0;
-			this.m_motorLeft.resetTachoCount();
-		}
 
 	}
 
