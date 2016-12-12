@@ -31,7 +31,7 @@ public class ServerThread extends Thread {
 	 * The Enum Direction represent a direction taken by a robot in the
 	 * intersection.
 	 */
-	private enum Direction {
+	public enum Direction {
 		/** The direction one. */
 		ONE,
 		/** The direction two. */
@@ -93,7 +93,7 @@ public class ServerThread extends Thread {
 
 					m_roboInfos.put(message.getAddress().getHostAddress(), data);
 
-					// When a robot informe us of is position will he was on the
+					// When a robot informe us of his position will he was on the
 					// access list,
 					// we need to erase it from the access list when he passed
 					// the intersection
