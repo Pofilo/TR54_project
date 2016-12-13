@@ -62,6 +62,12 @@ public class ServerThread extends Thread {
 	/** The listenner used to compute the messages. */
 	private BroadcastListener m_listenner;
 
+	/** The current direction authorized by the server */
+	Direction currentDirection;
+
+	/** The time since an access request was accepted */
+	Stopwatch timeSinceLastAddition;
+
 	/**
 	 * Instantiates a new server thread.
 	 */
@@ -93,7 +99,8 @@ public class ServerThread extends Thread {
 
 					m_roboInfos.put(message.getAddress().getHostAddress(), data);
 
-					// When a robot informe us of his position will he was on the
+					// When a robot informe us of his position will he was on
+					// the
 					// access list,
 					// we need to erase it from the access list when he passed
 					// the intersection
@@ -142,105 +149,132 @@ public class ServerThread extends Thread {
 	 * @see java.lang.Thread#run()
 	 */
 	public void run() {
-		Direction currentDirection = Direction.ONE;
-		Stopwatch timeSinceLastAddition = new Stopwatch();
+		currentDirection = Direction.ONE;
+		timeSinceLastAddition = new Stopwatch();
 
 		while (!m_stop) {
-			// If there was no access request, no need to continue
-			synchronized (m_mutexAccessRequest) {
-				if (m_accessRequest.isEmpty()) {
-					continue;
-				}
+			processAccessRequest();
+			proccessAccessList();
+
+			Delay.msDelay(30);
+		}
+	}
+
+	/**
+	 * If there are access request waiting, we process them here, otherwise we
+	 * return immediately
+	 */
+	private void processAccessRequest() {
+		// If there was no access request, no need to continue
+		synchronized (m_mutexAccessRequest) {
+			if (m_accessRequest.isEmpty()) {
+				return;
 			}
+		}
 
-			boolean conditionVerification = false;
+		List<Pair<String, Direction>> accessRequestCopy = new ArrayList<>();
+		List<Pair<String, Direction>> acceptedAccessRequest = new ArrayList<>();
 
-			// The access sequence is empty
-			synchronized (m_mutexAccessList) {
+		// note : addAll is a shallow copy,
+		accessRequestCopy.addAll(m_accessRequest);
+
+		// The access sequence is empty
+		synchronized (m_mutexAccessList) {
+			for (Pair<String, Direction> request : accessRequestCopy) {
+				boolean conditionVerification = false;
 				if (m_accessList.isEmpty()) {
 					conditionVerification = true;
 
-				} else if (m_accessRequest.get(0).second != currentDirection
-						&& timeSinceLastAddition.elapsed() >= deltaT) {
+				} else if (request.second != currentDirection && timeSinceLastAddition.elapsed() >= deltaT) {
 					// The last robot from the access list come from an other
 					// direction and the time since an addition to the access
-					// list
-					// is superior to deltaTime
+					// list is superior to deltaTime
 					conditionVerification = true;
 
-				} else {// The direction of the last robot in the access
-						// sequence is
-						// the same has the direction of the current access
-						// request
-					conditionVerification = m_accessRequest.get(0).second == currentDirection;
+				} else {
+					// The direction of the last robot in the access sequence is
+					// the same has the direction of the current access request
+					conditionVerification = request.second == currentDirection;
+				}
+				if (conditionVerification) {
+					acceptedAccessRequest.add(request);
 				}
 			}
+		}
 
-			if (conditionVerification) {
-				String robotId = m_accessRequest.get(0).first;
-				currentDirection = m_accessRequest.get(0).second;
+		synchronized (m_mutexAccessList) {
+			for (Pair<String, Direction> request : acceptedAccessRequest) {
+				String robotId = request.first;
+				m_accessList.add(robotId);
 
-				synchronized (m_mutexAccessRequest) {
-					m_accessRequest.remove(0);
-				}
-
-				synchronized (m_mutexAccessList) {
-					m_accessList.add(robotId);
-				}
-
-				timeSinceLastAddition.reset();
 			}
+		}
 
-			if (!m_accessList.isEmpty()) {
-				// 1 byte for the message header
-				// 1 byte for the number of robot, then for each robot :
-				// 4 byte for the identifiant (robot ip)
-				// 4 byte for the position
-				// 4 byte the the speed
-				byte[] message = new byte[1 + 1 + m_accessList.size() * (4 + 4 + 4)];
-				message[0] = 2; // message header
-				message[1] = (byte) m_accessList.size(); // number of robot in
-															// the access list
+		// Update the direction of the last robot in the access list
+		if (!acceptedAccessRequest.isEmpty()) {
+			timeSinceLastAddition.reset();
+			currentDirection = acceptedAccessRequest.get(acceptedAccessRequest.size() - 1).second;
+		}
 
-				for (int i = 0; i < m_accessList.size(); ++i) {
-					String robotIdentifiant = m_accessList.get(i);
-					// default address, should never be used
-					byte[] ipAddress = new byte[] { 0, 0, 0, 0 };
-					try {
-						ipAddress = InetAddress.getByName(robotIdentifiant).getAddress();
-					} catch (UnknownHostException e) {
-						e.printStackTrace();
-					}
-					byte[] position = ByteBuffer.allocate(4).putFloat(m_roboInfos.get(robotIdentifiant).position)
-							.array();
-					byte[] speed = ByteBuffer.allocate(4).putFloat(m_roboInfos.get(robotIdentifiant).speed).array();
+		synchronized (m_mutexAccessRequest) {
+			for (Pair<String, Direction> request : acceptedAccessRequest) {
+				m_accessRequest.remove(request);
 
-					message[2 + i * 12] = ipAddress[0];
-					message[2 + i * 12 + 1] = ipAddress[1];
-					message[2 + i * 12 + 2] = ipAddress[2];
-					message[2 + i * 12 + 3] = ipAddress[3];
+			}
+		}
+	}
 
-					message[2 + i * 12 + 4] = position[0];
-					message[2 + i * 12 + 5] = position[1];
-					message[2 + i * 12 + 6] = position[2];
-					message[2 + i * 12 + 7] = position[3];
+	/**
+	 * If there are robot in the access list, we broadcast them the entire
+	 * access list
+	 */
+	private void proccessAccessList() {
+		if (!m_accessList.isEmpty()) {
+			// 1 byte for the message header
+			// 1 byte for the number of robot, then for each robot :
+			// 4 byte for the identifiant (robot ip)
+			// 4 byte for the position
+			// 4 byte the the speed
+			byte[] message = new byte[1 + 1 + m_accessList.size() * (4 + 4 + 4)];
+			message[0] = 2; // message header
+			message[1] = (byte) m_accessList.size(); // number of robot in
+														// the access list
 
-					message[2 + i * 12 + 8] = speed[0];
-					message[2 + i * 12 + 9] = speed[1];
-					message[2 + i * 12 + 10] = speed[2];
-					message[2 + i * 12 + 11] = speed[3];
-				}
-
+			for (int i = 0; i < m_accessList.size(); ++i) {
+				String robotIdentifiant = m_accessList.get(i);
+				// default address, should never be used
+				byte[] ipAddress = new byte[] { 0, 0, 0, 0 };
 				try {
-					BroadcastManager.getInstance().broadcast(message);
-				} catch (SocketException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
+					ipAddress = InetAddress.getByName(robotIdentifiant).getAddress();
+				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				}
+				byte[] position = ByteBuffer.allocate(4).putFloat(m_roboInfos.get(robotIdentifiant).position).array();
+				byte[] speed = ByteBuffer.allocate(4).putFloat(m_roboInfos.get(robotIdentifiant).speed).array();
+
+				message[2 + i * 12] = ipAddress[0];
+				message[2 + i * 12 + 1] = ipAddress[1];
+				message[2 + i * 12 + 2] = ipAddress[2];
+				message[2 + i * 12 + 3] = ipAddress[3];
+
+				message[2 + i * 12 + 4] = position[0];
+				message[2 + i * 12 + 5] = position[1];
+				message[2 + i * 12 + 6] = position[2];
+				message[2 + i * 12 + 7] = position[3];
+
+				message[2 + i * 12 + 8] = speed[0];
+				message[2 + i * 12 + 9] = speed[1];
+				message[2 + i * 12 + 10] = speed[2];
+				message[2 + i * 12 + 11] = speed[3];
 			}
 
-			Delay.msDelay(10);
+			try {
+				BroadcastManager.getInstance().broadcast(message);
+			} catch (SocketException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
