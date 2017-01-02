@@ -112,6 +112,11 @@ public class ClientThread extends Thread {
 			sendClientInformation();
 			Delay.msDelay(PERIOD);
 		}
+		try {
+			BroadcastReceiver.getInstance().removeListener(m_listenner);
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean isCanAdvance() {
@@ -163,6 +168,10 @@ public class ClientThread extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void setRunning(boolean b){
+		this.isRunning = b;
 	}
 	
 
