@@ -7,7 +7,7 @@ import com.utbm.tr54.robot.thread.ServerThread;
 
 import lejos.hardware.Button;
 
-public class Main {
+public class Main2 {
 
 	public static void main(String[] args) {
 		System.out.println("UP  : Server");
