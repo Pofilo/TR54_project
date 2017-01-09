@@ -6,6 +6,7 @@ import com.utbm.tr54.robot.thread.ClientThread;
 import com.utbm.tr54.robot.thread.ColorSensorThread;
 import com.utbm.tr54.robot.thread.DistanceThread;
 
+import lejos.hardware.Button;
 import lejos.utility.Delay;
 import lejos.utility.Stopwatch;
 
@@ -64,6 +65,7 @@ public class RobotIA extends AbstractRobot {
 			// not
 			if (dangerZone && !ClientThread.getInstance().isCanAdvance()) {
 				this.stop();
+				Button.LEDPattern(5);
 				Delay.msDelay(PERIOD);
 				continue;
 			}

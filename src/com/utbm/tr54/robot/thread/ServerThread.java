@@ -39,7 +39,7 @@ public class ServerThread extends Thread {
 	};
 
 	/** Max time since last addition to the access list. */
-	private final int deltaT = 5000;
+	private final int deltaT = 7000;
 
 	/** boolean controlling the execution of the loop. */
 	private boolean m_stop = false;
@@ -104,8 +104,7 @@ public class ServerThread extends Thread {
 					// to erase it from the access list when he
 					synchronized (m_mutexAccessList) {
 						if (m_accessList.contains(message.getAddress().getHostAddress())) {
-							if (((data.position > 15) && (data.position < 50))
-									|| ((data.position > 65) && (data.position < 100))) {
+							if (((data.position > 15) && (data.position < 50)) || ((data.position > 65))) {
 								m_accessList.remove(message.getAddress().getHostAddress());
 								proccessAccessList();
 							}
@@ -164,11 +163,6 @@ public class ServerThread extends Thread {
 		while (!m_stop) {
 			processAccessRequest();
 			proccessAccessList();
-			/*
-			 * System.out.println("access list"); synchronized
-			 * (m_mutexAccessList) { for (String a : m_accessList) {
-			 * System.out.println(a); } }
-			 */
 
 			Delay.msDelay(30);
 		}
@@ -199,16 +193,13 @@ public class ServerThread extends Thread {
 				if (m_accessList.isEmpty()) {
 					conditionVerification = true;
 
-				} /*
-					 * else if (request.second != currentDirection &&
-					 * timeSinceLastAddition.elapsed() >= deltaT) { // The last
-					 * robot from the access list come from an other //
-					 * direction and the time since an addition to the access //
-					 * list is superior to deltaTime conditionVerification =
-					 * true;
-					 * 
-					 * }
-					 */else {
+				} else if (request.second != currentDirection && timeSinceLastAddition.elapsed() >= deltaT) {
+					// The last robot from the access list come from an other
+					// direction and the time since an addition to the access
+					// list is superior to deltaTime
+					conditionVerification = true;
+
+				} else {
 					// The direction of the last robot in the access sequence is
 					// the same has the direction of the current access request
 					conditionVerification = request.second == currentDirection;
@@ -258,10 +249,8 @@ public class ServerThread extends Thread {
 			message[0] = 2; // message header
 			message[1] = (byte) m_accessList.size(); // number of robot in
 														// the access list
-			// System.out.println("list size : " + m_accessList.size());
 			for (int i = 0; i < m_accessList.size(); ++i) {
 				String robotIdentifiant = m_accessList.get(i);
-				System.out.println(robotIdentifiant);
 				// default address, should never be used
 				byte[] ipAddress = new byte[] { 0, 0, 0, 0 };
 				try {

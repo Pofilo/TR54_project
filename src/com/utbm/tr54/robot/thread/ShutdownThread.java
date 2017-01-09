@@ -1,7 +1,6 @@
 package com.utbm.tr54.robot.thread;
 
 import lejos.hardware.Button;
-import lejos.utility.Delay;
 
 public class ShutdownThread extends Thread {
 
