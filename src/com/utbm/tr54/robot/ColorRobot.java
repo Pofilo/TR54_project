@@ -86,7 +86,7 @@ public class ColorRobot {
 	 */
 	public boolean isOrange()
 	{
-		return equals(this, PERFECT_ORANGE, 0.1f);
+		return equals(this, PERFECT_ORANGE, 0.05f);
 	}
 	
 	/**

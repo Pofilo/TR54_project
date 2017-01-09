@@ -4,6 +4,7 @@ import com.utbm.tr54.robot.AbstractRobot;
 import com.utbm.tr54.robot.RobotIA;
 import com.utbm.tr54.robot.thread.ClientThread;
 import com.utbm.tr54.robot.thread.ServerThread;
+import com.utbm.tr54.robot.thread.ShutdownThread;
 
 import lejos.hardware.Button;
 
@@ -36,6 +37,9 @@ public class Main2 {
 		
 		ClientThread.getInstance().init((RobotIA)robot);
 		ClientThread.getInstance().start();
+		
+		ShutdownThread shutdown = new ShutdownThread();
+		Runtime.getRuntime().addShutdownHook(shutdown);
 		
 		robot.launchIA();
 	}

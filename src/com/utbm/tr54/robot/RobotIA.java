@@ -1,5 +1,7 @@
 package com.utbm.tr54.robot;
 
+import javax.swing.plaf.synth.SynthSeparatorUI;
+
 import com.utbm.tr54.robot.thread.ClientThread;
 import com.utbm.tr54.robot.thread.ColorSensorThread;
 import com.utbm.tr54.robot.thread.DistanceThread;
@@ -56,6 +58,7 @@ public class RobotIA extends AbstractRobot {
 			updateSpeed();
 			updatePosition();
 			
+			
 
 			// we check if we are in the danger zone and if we can advance or
 			// not
@@ -84,9 +87,6 @@ public class RobotIA extends AbstractRobot {
 				
 				
 				if (orangeSw.elapsed() > 2000) {
-
-					ClientThread.getInstance().sendAccessRequest();
-
 					this.position = 0;
 					this.m_motorLeft.resetTachoCount();
 
@@ -119,6 +119,7 @@ public class RobotIA extends AbstractRobot {
 			default:
 				break;
 			}
+			Delay.msDelay(5);
 		}
 	}
 
@@ -141,6 +142,7 @@ public class RobotIA extends AbstractRobot {
 
 			if ((position > 0 && position < 15) || (position > 50 && position < 65) ) {
 				this.dangerZone = true;
+				ClientThread.getInstance().sendAccessRequest();
 			} else {
 				this.dangerZone = false;
 			}

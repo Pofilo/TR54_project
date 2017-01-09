@@ -100,15 +100,14 @@ public class ServerThread extends Thread {
 					m_roboInfos.put(message.getAddress().getHostAddress(), data);
 
 					// When a robot informe us of his position will he was on
-					// the
-					// access list,
-					// we need to erase it from the access list when he passed
-					// the intersection
-					if (m_accessList.contains(message.getAddress().getHostAddress())) {
-						synchronized (m_mutexAccessList) {
-							if (((data.position > 20) && (data.position < 40))
-									|| ((data.position > 70) && (data.position < 90))) {
+					// the access list, but have passed the intersection we need
+					// to erase it from the access list when he
+					synchronized (m_mutexAccessList) {
+						if (m_accessList.contains(message.getAddress().getHostAddress())) {
+							if (((data.position > 15) && (data.position < 50))
+									|| ((data.position > 65) && (data.position < 100))) {
 								m_accessList.remove(message.getAddress().getHostAddress());
+								proccessAccessList();
 							}
 						}
 					}
@@ -124,7 +123,17 @@ public class ServerThread extends Thread {
 						return;
 					}
 
-					Direction dir = (data.position > 50) ? Direction.ONE : Direction.TWO;
+					Direction dir = null;
+
+					if ((data.position > 0) && (data.position <= 15)) {
+						dir = Direction.ONE;
+					} else if ((data.position >= 50) && (data.position <= 65)) {
+						dir = Direction.TWO;
+					}
+
+					if (dir == null) {
+						return;
+					}
 
 					synchronized (m_mutexAccessRequest) {
 						m_accessRequest.add(
@@ -155,6 +164,11 @@ public class ServerThread extends Thread {
 		while (!m_stop) {
 			processAccessRequest();
 			proccessAccessList();
+			/*
+			 * System.out.println("access list"); synchronized
+			 * (m_mutexAccessList) { for (String a : m_accessList) {
+			 * System.out.println(a); } }
+			 */
 
 			Delay.msDelay(30);
 		}
@@ -185,13 +199,16 @@ public class ServerThread extends Thread {
 				if (m_accessList.isEmpty()) {
 					conditionVerification = true;
 
-				} else if (request.second != currentDirection && timeSinceLastAddition.elapsed() >= deltaT) {
-					// The last robot from the access list come from an other
-					// direction and the time since an addition to the access
-					// list is superior to deltaTime
-					conditionVerification = true;
-
-				} else {
+				} /*
+					 * else if (request.second != currentDirection &&
+					 * timeSinceLastAddition.elapsed() >= deltaT) { // The last
+					 * robot from the access list come from an other //
+					 * direction and the time since an addition to the access //
+					 * list is superior to deltaTime conditionVerification =
+					 * true;
+					 * 
+					 * }
+					 */else {
 					// The direction of the last robot in the access sequence is
 					// the same has the direction of the current access request
 					conditionVerification = request.second == currentDirection;
@@ -205,7 +222,9 @@ public class ServerThread extends Thread {
 		synchronized (m_mutexAccessList) {
 			for (Pair<String, Direction> request : acceptedAccessRequest) {
 				String robotId = request.first;
-				m_accessList.add(robotId);
+				if (!m_accessList.contains(robotId)) {
+					m_accessList.add(robotId);
+				}
 
 			}
 		}
@@ -229,7 +248,7 @@ public class ServerThread extends Thread {
 	 * access list
 	 */
 	private void proccessAccessList() {
-		if (!m_accessList.isEmpty()) {
+		synchronized (m_mutexAccessList) {
 			// 1 byte for the message header
 			// 1 byte for the number of robot, then for each robot :
 			// 4 byte for the identifiant (robot ip)
@@ -239,9 +258,10 @@ public class ServerThread extends Thread {
 			message[0] = 2; // message header
 			message[1] = (byte) m_accessList.size(); // number of robot in
 														// the access list
-
+			// System.out.println("list size : " + m_accessList.size());
 			for (int i = 0; i < m_accessList.size(); ++i) {
 				String robotIdentifiant = m_accessList.get(i);
+				System.out.println(robotIdentifiant);
 				// default address, should never be used
 				byte[] ipAddress = new byte[] { 0, 0, 0, 0 };
 				try {
