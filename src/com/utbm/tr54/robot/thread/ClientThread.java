@@ -131,7 +131,7 @@ public class ClientThread extends Thread {
 		}
 	}
 	
-	private void sendClientInformation() {
+	public void sendClientInformation() {
 		byte[] message = new byte[1 + 2 * 4];
 		message[0] = 0; // message header
 		

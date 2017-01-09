@@ -39,7 +39,7 @@ public class ServerThread extends Thread {
 	};
 
 	/** Max time since last addition to the access list. */
-	private final int deltaT = 7000;
+	private final int deltaT = 700000;
 
 	/** boolean controlling the execution of the loop. */
 	private boolean m_stop = false;
@@ -124,14 +124,20 @@ public class ServerThread extends Thread {
 
 					Direction dir = null;
 
-					if ((data.position > 0) && (data.position <= 15)) {
+					if ((data.position > -1) && (data.position < 50)) {
 						dir = Direction.ONE;
-					} else if ((data.position >= 50) && (data.position <= 65)) {
+					} else if ((data.position >= 50)) {
 						dir = Direction.TWO;
 					}
 
 					if (dir == null) {
 						return;
+					}
+					
+					synchronized (m_mutexAccessList) {
+						if(m_accessList.contains(message.getAddress().getHostAddress())){
+							return;
+						}
 					}
 
 					synchronized (m_mutexAccessRequest) {
@@ -192,20 +198,27 @@ public class ServerThread extends Thread {
 				boolean conditionVerification = false;
 				if (m_accessList.isEmpty()) {
 					conditionVerification = true;
+					currentDirection = request.second;
+					System.out.println(request.first + " : A");
 
 				} else if (request.second != currentDirection && timeSinceLastAddition.elapsed() >= deltaT) {
 					// The last robot from the access list come from an other
 					// direction and the time since an addition to the access
 					// list is superior to deltaTime
 					conditionVerification = true;
+					System.out.println(request.first + " : T");
 
 				} else {
 					// The direction of the last robot in the access sequence is
 					// the same has the direction of the current access request
-					conditionVerification = request.second == currentDirection;
+					conditionVerification = request.second.equals(currentDirection);
+					
+					System.out.println(request.first + " : S " + currentDirection + " = " + request.second);
 				}
+				
 				if (conditionVerification) {
 					acceptedAccessRequest.add(request);
+					timeSinceLastAddition.reset();
 				}
 			}
 		}
@@ -222,8 +235,8 @@ public class ServerThread extends Thread {
 
 		// Update the direction of the last robot in the access list
 		if (!acceptedAccessRequest.isEmpty()) {
-			timeSinceLastAddition.reset();
-			currentDirection = acceptedAccessRequest.get(acceptedAccessRequest.size() - 1).second;
+			//timeSinceLastAddition.reset();
+			//currentDirection = acceptedAccessRequest.get(acceptedAccessRequest.size() - 1).second;
 		}
 
 		synchronized (m_mutexAccessRequest) {

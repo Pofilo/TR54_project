@@ -5,8 +5,10 @@ import javax.swing.plaf.synth.SynthSeparatorUI;
 import com.utbm.tr54.robot.thread.ClientThread;
 import com.utbm.tr54.robot.thread.ColorSensorThread;
 import com.utbm.tr54.robot.thread.DistanceThread;
+import com.utbm.tr54.robot.thread.ServerThread.Direction;
 
 import lejos.hardware.Button;
+import lejos.hardware.Sound;
 import lejos.utility.Delay;
 import lejos.utility.Stopwatch;
 
@@ -58,13 +60,20 @@ public class RobotIA extends AbstractRobot {
 		while (true) {
 			updateSpeed();
 			updatePosition();
+			String r = "";
+			if ((position > -1) && (position < 50)) {
+				r = "ONE";
+			} else if ((position >= 50)) {
+				r = "TWO";
+			}
+			System.out.println(position + " -> " + r);
 			
 			
 
 			// we check if we are in the danger zone and if we can advance or
 			// not
 			if (dangerZone && !ClientThread.getInstance().isCanAdvance()) {
-				if(!(this.position < 7 || this.position < 57)) this.stop();
+				/*if(!(this.position < 7 || (this.position > 50 && this.position < 57)))*/ this.stop();
 				Button.LEDPattern(5);
 				Delay.msDelay(PERIOD);
 				continue;
@@ -91,8 +100,18 @@ public class RobotIA extends AbstractRobot {
 				if (orangeSw.elapsed() > 2000) {
 					this.position = 0;
 					this.m_motorLeft.resetTachoCount();
+					
 
 					sawFirstOrange = !sawFirstOrange;
+					
+					if(sawFirstOrange)
+					{
+						Sound.beepSequence();
+					}
+					else
+					{
+						Sound.beep();
+					}
 					orangeSw.reset();
 				} else {
 					orangeSw.reset();
@@ -135,7 +154,7 @@ public class RobotIA extends AbstractRobot {
 	private void updatePosition() {
 		
 			if (sawFirstOrange) {
-
+				
 				this.position = (this.m_motorLeft.getTachoCount() / 11000f) * 100;
 			} else {
 
@@ -144,6 +163,8 @@ public class RobotIA extends AbstractRobot {
 
 			if ((position >= 0 && position < 15) || (position >= 50 && position < 65) ) {
 				this.dangerZone = true;
+				ClientThread.getInstance().sendClientInformation();
+				Delay.msDelay(50);
 				ClientThread.getInstance().sendAccessRequest();
 			} else {
 				this.dangerZone = false;
