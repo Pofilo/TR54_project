@@ -64,7 +64,7 @@ public class RobotIA extends AbstractRobot {
 			// we check if we are in the danger zone and if we can advance or
 			// not
 			if (dangerZone && !ClientThread.getInstance().isCanAdvance()) {
-				this.stop();
+				if(!(this.position < 7 || this.position < 57)) this.stop();
 				Button.LEDPattern(5);
 				Delay.msDelay(PERIOD);
 				continue;
@@ -136,13 +136,13 @@ public class RobotIA extends AbstractRobot {
 		
 			if (sawFirstOrange) {
 
-				this.position = (this.m_motorLeft.getTachoCount() / 10800f) * 100;
+				this.position = (this.m_motorLeft.getTachoCount() / 11000f) * 100;
 			} else {
 
-				this.position = ((this.m_motorLeft.getTachoCount() / 10800f) * 100) + 50;
+				this.position = ((this.m_motorLeft.getTachoCount() / 11000f) * 100) + 50;
 			}
 
-			if ((position > 0 && position < 15) || (position > 50 && position < 65) ) {
+			if ((position >= 0 && position < 15) || (position >= 50 && position < 65) ) {
 				this.dangerZone = true;
 				ClientThread.getInstance().sendAccessRequest();
 			} else {
