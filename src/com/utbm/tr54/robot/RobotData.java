@@ -15,9 +15,9 @@ public class RobotData {
 	/**
 	 * Instantiates a new robotData.
 	 */
-	public RobotData(){
-		speed = 0;
-		position = 0;
+	public RobotData() {
+		this.speed = 0;
+		this.position = 0;
 	}
 	
 	/**
@@ -26,8 +26,8 @@ public class RobotData {
 	 * @param _speed the speed of the robot
 	 * @param _position the position of the robot
 	 */
-	public RobotData(float _speed, float _position){
-		speed = _speed;
-		position = _position;
+	public RobotData(final float _speed, final float _position){
+		this.speed = _speed;
+		this.position = _position;
 	}
 }
