@@ -41,8 +41,8 @@ public class BroadcastManager implements AutoCloseable {
 	private BroadcastManager() throws SocketException {
 		this.socket = new DatagramSocket();
 
-		// Retreive every interface address
-		m_interfacesAddress = new ArrayList<>();
+		// Retrieve every interface address
+		this.m_interfacesAddress = new ArrayList<>();
 
 		Enumeration e;
 		try {
@@ -52,7 +52,7 @@ public class BroadcastManager implements AutoCloseable {
 				Enumeration ee = n.getInetAddresses();
 				while (ee.hasMoreElements()) {
 					InetAddress i = (InetAddress) ee.nextElement();
-					m_interfacesAddress.add(i.getHostAddress());
+					this.m_interfacesAddress.add(i.getHostAddress());
 				}
 			}
 		} catch (SocketException e1) {
@@ -91,9 +91,9 @@ public class BroadcastManager implements AutoCloseable {
 	 * @param address a string representing an ip address
 	 * @return true if the given address is the same as one of our own address
 	 */
-	public boolean isSameAddress(String address) {
+	public boolean isSameAddress(final String address) {
 		boolean result = false;
-		for (String knowAddress : m_interfacesAddress) {
+		for (String knowAddress : this.m_interfacesAddress) {
 			result = knowAddress.compareTo(address) == 0;
 			if(result){
 				break;

@@ -21,8 +21,8 @@ public class Pair<X, Y> {
 	 * @param _first the first element
 	 * @param _second the second element
 	 */
-	public Pair(X _first, Y _second) {
-		first = _first;
-		second = _second;
+	public Pair(final X _first, final Y _second) {
+		this.first = _first;
+		this.second = _second;
 	}
 }

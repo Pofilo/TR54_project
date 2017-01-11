@@ -11,5 +11,5 @@ public interface BroadcastListener {
 	 * Triggered on broadcast received
 	 * @param message the raw message
 	 */
-	public void onBroadcastReceived(DatagramPacket message);
+	public void onBroadcastReceived(final DatagramPacket message);
 }
