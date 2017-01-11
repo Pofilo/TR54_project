@@ -22,7 +22,7 @@ import lejos.utility.Delay;
 import lejos.utility.Stopwatch;
 
 /**
- * The Class ServerThread represent the server that organise the intersection
+ * The Class ServerThread represent the server that organize the intersection
  * passage order.
  */
 public class ServerThread extends Thread {
@@ -38,6 +38,9 @@ public class ServerThread extends Thread {
 		TWO
 	};
 
+	/** The delay between each loop while the thread is running. */
+	private static final int PERIOD = 30;
+	
 	/** Max time since last addition to the access list. */
 	private final int deltaT = 700000;
 
@@ -63,24 +66,24 @@ public class ServerThread extends Thread {
 	private BroadcastListener m_listenner;
 
 	/** The current direction authorized by the server */
-	Direction currentDirection;
+	private Direction currentDirection;
 
 	/** The time since an access request was accepted */
-	Stopwatch timeSinceLastAddition;
+	private Stopwatch timeSinceLastAddition;
 
 	/**
 	 * Instantiates a new server thread.
 	 */
 	public ServerThread() {
-		m_roboInfos = new Hashtable<>();
-		m_accessRequest = new ArrayList<>();
-		m_accessList = new ArrayList<>();
-		m_mutexAccessRequest = new Object();
-		m_mutexAccessList = new Object();
+		this.m_roboInfos = new Hashtable<>();
+		this.m_accessRequest = new ArrayList<>();
+		this.m_accessList = new ArrayList<>();
+		this.m_mutexAccessRequest = new Object();
+		this.m_mutexAccessList = new Object();
 
-		m_listenner = new BroadcastListener() {
+		this.m_listenner = new BroadcastListener() {
 			@Override
-			public void onBroadcastReceived(DatagramPacket message) {
+			public void onBroadcastReceived(final DatagramPacket message) {
 				byte[] messageData = message.getData();
 
 				switch (messageData[0]) {
@@ -99,9 +102,9 @@ public class ServerThread extends Thread {
 
 					m_roboInfos.put(message.getAddress().getHostAddress(), data);
 
-					// When a robot informe us of his position will he was on
+					// When a robot inform us of his position will he was on
 					// the access list, but have passed the intersection we need
-					// to erase it from the access list when he
+					// to erase it from the access list when he cross the intersection
 					synchronized (m_mutexAccessList) {
 						if (m_accessList.contains(message.getAddress().getHostAddress())) {
 							if (((data.position > 15) && (data.position < 50)) || ((data.position > 65))) {
@@ -163,14 +166,14 @@ public class ServerThread extends Thread {
 	 * @see java.lang.Thread#run()
 	 */
 	public void run() {
-		currentDirection = Direction.ONE;
-		timeSinceLastAddition = new Stopwatch();
+		this.currentDirection = Direction.ONE;
+		this.timeSinceLastAddition = new Stopwatch();
 
 		while (!m_stop) {
 			processAccessRequest();
 			proccessAccessList();
 
-			Delay.msDelay(30);
+			Delay.msDelay(PERIOD);
 		}
 	}
 
@@ -180,8 +183,8 @@ public class ServerThread extends Thread {
 	 */
 	private void processAccessRequest() {
 		// If there was no access request, no need to continue
-		synchronized (m_mutexAccessRequest) {
-			if (m_accessRequest.isEmpty()) {
+		synchronized (this.m_mutexAccessRequest) {
+			if (this.m_accessRequest.isEmpty()) {
 				return;
 			}
 		}
@@ -189,19 +192,19 @@ public class ServerThread extends Thread {
 		List<Pair<String, Direction>> accessRequestCopy = new ArrayList<>();
 		List<Pair<String, Direction>> acceptedAccessRequest = new ArrayList<>();
 
-		// note : addAll is a shallow copy,
-		accessRequestCopy.addAll(m_accessRequest);
+		// note : addAll is a shallow copy
+		accessRequestCopy.addAll(this.m_accessRequest);
 
 		// The access sequence is empty
-		synchronized (m_mutexAccessList) {
+		synchronized (this.m_mutexAccessList) {
 			for (Pair<String, Direction> request : accessRequestCopy) {
 				boolean conditionVerification = false;
-				if (m_accessList.isEmpty()) {
+				if (this.m_accessList.isEmpty()) {
 					conditionVerification = true;
-					currentDirection = request.second;
+					this.currentDirection = request.second;
 					System.out.println(request.first + " : A");
 
-				} else if (request.second != currentDirection && timeSinceLastAddition.elapsed() >= deltaT) {
+				} else if (request.second != this.currentDirection && this.timeSinceLastAddition.elapsed() >= deltaT) {
 					// The last robot from the access list come from an other
 					// direction and the time since an addition to the access
 					// list is superior to deltaTime
@@ -213,35 +216,29 @@ public class ServerThread extends Thread {
 					// the same has the direction of the current access request
 					conditionVerification = request.second.equals(currentDirection);
 					
-					System.out.println(request.first + " : S " + currentDirection + " = " + request.second);
+					System.out.println(request.first + " : S " + this.currentDirection + " = " + request.second);
 				}
 				
 				if (conditionVerification) {
 					acceptedAccessRequest.add(request);
-					timeSinceLastAddition.reset();
+					this.timeSinceLastAddition.reset();
 				}
 			}
 		}
 
-		synchronized (m_mutexAccessList) {
+		synchronized (this.m_mutexAccessList) {
 			for (Pair<String, Direction> request : acceptedAccessRequest) {
 				String robotId = request.first;
-				if (!m_accessList.contains(robotId)) {
-					m_accessList.add(robotId);
+				if (!this.m_accessList.contains(robotId)) {
+					this.m_accessList.add(robotId);
 				}
 
 			}
 		}
 
-		// Update the direction of the last robot in the access list
-		if (!acceptedAccessRequest.isEmpty()) {
-			//timeSinceLastAddition.reset();
-			//currentDirection = acceptedAccessRequest.get(acceptedAccessRequest.size() - 1).second;
-		}
-
-		synchronized (m_mutexAccessRequest) {
+		synchronized (this.m_mutexAccessRequest) {
 			for (Pair<String, Direction> request : acceptedAccessRequest) {
-				m_accessRequest.remove(request);
+				this.m_accessRequest.remove(request);
 
 			}
 		}
@@ -252,18 +249,17 @@ public class ServerThread extends Thread {
 	 * access list
 	 */
 	private void proccessAccessList() {
-		synchronized (m_mutexAccessList) {
+		synchronized (this.m_mutexAccessList) {
 			// 1 byte for the message header
 			// 1 byte for the number of robot, then for each robot :
-			// 4 byte for the identifiant (robot ip)
+			// 4 byte for the identifier (ip address of the robot)
 			// 4 byte for the position
 			// 4 byte the the speed
-			byte[] message = new byte[1 + 1 + m_accessList.size() * (4 + 4 + 4)];
+			byte[] message = new byte[1 + 1 + this.m_accessList.size() * (4 + 4 + 4)];
 			message[0] = 2; // message header
-			message[1] = (byte) m_accessList.size(); // number of robot in
-														// the access list
-			for (int i = 0; i < m_accessList.size(); ++i) {
-				String robotIdentifiant = m_accessList.get(i);
+			message[1] = (byte) this.m_accessList.size(); // number of robot in the access list
+			for (int i = 0; i < this.m_accessList.size(); ++i) {
+				String robotIdentifiant = this.m_accessList.get(i);
 				// default address, should never be used
 				byte[] ipAddress = new byte[] { 0, 0, 0, 0 };
 				try {
@@ -271,8 +267,8 @@ public class ServerThread extends Thread {
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				}
-				byte[] position = ByteBuffer.allocate(4).putFloat(m_roboInfos.get(robotIdentifiant).position).array();
-				byte[] speed = ByteBuffer.allocate(4).putFloat(m_roboInfos.get(robotIdentifiant).speed).array();
+				byte[] position = ByteBuffer.allocate(4).putFloat(this.m_roboInfos.get(robotIdentifiant).position).array();
+				byte[] speed = ByteBuffer.allocate(4).putFloat(this.m_roboInfos.get(robotIdentifiant).speed).array();
 
 				message[2 + i * 12] = ipAddress[0];
 				message[2 + i * 12 + 1] = ipAddress[1];
@@ -304,10 +300,10 @@ public class ServerThread extends Thread {
 	 * Close the thread.
 	 */
 	public void close() {
-		m_stop = true;
+		this.m_stop = true;
 
 		try {
-			BroadcastReceiver.getInstance().removeListener(m_listenner);
+			BroadcastReceiver.getInstance().removeListener(this.m_listenner);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}

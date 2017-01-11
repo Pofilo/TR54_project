@@ -1,3 +1,6 @@
+/*
+ * 
+ */
 package com.utbm.tr54;
 
 import com.utbm.tr54.robot.AbstractRobot;
@@ -8,8 +11,16 @@ import com.utbm.tr54.robot.thread.ShutdownThread;
 
 import lejos.hardware.Button;
 
-public class Main2 {
+/**
+ * The Class TR54Project.
+ */
+public class TR54Project {
 
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 */
 	public static void main(String[] args) {
 		System.out.println("UP  : Server");
 		System.out.println("ANY : Client");

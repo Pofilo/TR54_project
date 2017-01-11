@@ -7,13 +7,13 @@ package com.utbm.tr54.robot;
  */
 public class ColorRobot {
 	
-	/** The red composant of the color. */
+	/** The red component of the color. */
 	public float r;
 	
-	/** The green composant of the color. */
+	/** The green component of the color. */
 	public float g;
 	
-	/** The blue composant of the color. */
+	/** The blue component of the color. */
 	public float b;
 	
 	/** The Constant PERFECT_BLUE. */
@@ -28,8 +28,7 @@ public class ColorRobot {
 	/**
 	 * Instantiates a new color robot.
 	 */
-	public ColorRobot()
-	{
+	public ColorRobot()	{
 		r = 0.f;
 		g = 0.f;
 		b = 0.f;
@@ -42,8 +41,7 @@ public class ColorRobot {
 	 * @param _g the green composant
 	 * @param _b the blue composant
 	 */
-	public ColorRobot(float _r, float _g, float _b)
-	{
+	public ColorRobot(final float _r, final float _g, final float _b)	{
 		r = _r;
 		g = _g;
 		b = _b;
@@ -54,8 +52,7 @@ public class ColorRobot {
 	 *
 	 * @return true, if successful
 	 */
-	public boolean isBlue()
-	{
+	public boolean isBlue()	{
 		return equals(this, PERFECT_BLUE, 0.1f);
 	}
 	
@@ -64,8 +61,7 @@ public class ColorRobot {
 	 *
 	 * @return true, if successful
 	 */
-	public boolean isBlack()
-	{
+	public boolean isBlack() {
 		return equals(this, PERFECT_BLACK, 0.1f);
 	}
 	
@@ -74,8 +70,7 @@ public class ColorRobot {
 	 *
 	 * @return true, if successful
 	 */
-	public boolean isWhite()
-	{
+	public boolean isWhite() {
 		return (r > 0.15 && g > 0.15 && b > 0.08f);
 	}
 	
@@ -84,8 +79,7 @@ public class ColorRobot {
 	 *
 	 * @return true, if successful
 	 */
-	public boolean isOrange()
-	{
+	public boolean isOrange() {
 		return equals(this, PERFECT_ORANGE, 0.05f);
 	}
 	
@@ -97,8 +91,7 @@ public class ColorRobot {
 	 * @param epsilon the error we can afford when comparing the two color
 	 * @return true, if successful
 	 */
-	public static boolean equals(ColorRobot color1, ColorRobot color2, float epsilon)
-	{
+	public static boolean equals(final ColorRobot color1, final ColorRobot color2, final float epsilon)	{
 		boolean error = true;
 		
 		error = error && Math.abs(color1.r - color2.r) < epsilon;

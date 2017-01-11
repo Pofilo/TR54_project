@@ -57,7 +57,7 @@ public class BroadcastReceiver implements AutoCloseable {
 	 * @param listener
 	 *            the listener to add
 	 */
-	public void addListener(BroadcastListener listener) {
+	public void addListener(final BroadcastListener listener) {
 		this.listeners.add(listener);
 	}
 
@@ -67,7 +67,7 @@ public class BroadcastReceiver implements AutoCloseable {
 	 * @param listener
 	 *            the listener to remove
 	 */
-	public void removeListener(BroadcastListener listener) {
+	public void removeListener(final BroadcastListener listener) {
 		this.listeners.remove(listener);
 	}
 
@@ -77,7 +77,7 @@ public class BroadcastReceiver implements AutoCloseable {
 	 * @param message
 	 *            the raw message received
 	 */
-	protected void fireBroadcastReceived(DatagramPacket message) {
+	protected void fireBroadcastReceived(final DatagramPacket message) {
 		for (BroadcastListener listener : this.listeners) {
 			listener.onBroadcastReceived(message);
 		}
@@ -109,9 +109,7 @@ public class BroadcastReceiver implements AutoCloseable {
 				final DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				try {
 					this.broadcastReceiver.getSocket().receive(packet);
-					// if(!BroadcastManager.getInstance().IsSameAddress(packet.getAddress().getHostAddress())){
 					this.broadcastReceiver.fireBroadcastReceived(packet);
-					// }
 				} catch (IOException e) {
 					//
 				}
