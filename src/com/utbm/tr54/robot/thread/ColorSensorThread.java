@@ -20,26 +20,23 @@ public class ColorSensorThread extends Thread{
 	private Object mutex = new Object();
 
 	/** The boolean defining whether the thread is active. */
-	public boolean IsRunning = true;
+	private boolean isRunning = true;
 
 	/**
 	 * Instantiates a new color sensor thread.
 	 *
 	 * @param provider the sample provider
 	 */
-	public ColorSensorThread(SampleProvider provider)
-	{
-		m_provider = provider;
-		m_buffer = new ColorRobot(0, 0, 0);
+	public ColorSensorThread(final SampleProvider provider) {
+		this.m_provider = provider;
+		this.m_buffer = new ColorRobot(0, 0, 0);
 	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Thread#run()
 	 */
-	public void run()
-	{
-		while(IsRunning)
-		{
+	public void run() {
+		while(this.isRunning) {
 			acquireData();
 			Delay.msDelay(10);
 		}
@@ -50,9 +47,8 @@ public class ColorSensorThread extends Thread{
 	 *
 	 * @return true, if successful
 	 */
-	public boolean isEmpty()
-	{
-		return m_buffer == null;
+	public boolean isEmpty() {
+		return this.m_buffer == null;
 	}
 
 	/**
@@ -61,11 +57,10 @@ public class ColorSensorThread extends Thread{
 	 *
 	 * @return the color currently seen by the sensor
 	 */
-	public ColorRobot getData()
-	{
+	public ColorRobot getData()	{
 		ColorRobot color = null;
-		synchronized (mutex) {
-			color = m_buffer;
+		synchronized (this.mutex) {
+			color = this.m_buffer;
 		}
 
 		return color;
@@ -75,20 +70,18 @@ public class ColorSensorThread extends Thread{
 	/**
 	 * Acquire data from the sensor.
 	 */
-	private void acquireData()
-	{
-		synchronized (mutex)
-		{
+	private void acquireData() {
+		synchronized (this.mutex) {
 			ColorRobot color = new ColorRobot();
 
-			float[] samples = new float[m_provider.sampleSize()];
-			m_provider.fetchSample(samples, 0);
+			float[] samples = new float[this.m_provider.sampleSize()];
+			this.m_provider.fetchSample(samples, 0);
 
 			color.r = samples[0];
 			color.g = samples[1];
 			color.b = samples[2];
 
-			m_buffer = color;
+			this.m_buffer = color;
 		}
 	}
 }
