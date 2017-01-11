@@ -42,7 +42,7 @@ public class ServerThread extends Thread {
 	private static final int PERIOD = 30;
 	
 	/** Max time since last addition to the access list. */
-	private final int deltaT = 700000;
+	private final int deltaT = 10000;
 
 	/** boolean controlling the execution of the loop. */
 	private boolean m_stop = false;
